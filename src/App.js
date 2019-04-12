@@ -5,7 +5,9 @@ import Map from './components/map';
 class App extends Component {
   render() {
     return (
-      <Map />
+      <div>
+        <Map />
+      </div>
     );
   }
 }
