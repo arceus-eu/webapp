@@ -5,7 +5,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import { Map, TileLayer, type Viewport, CircleMarker, GeoJSON } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
-
+import { Graph } from '../graph/linegraph'
+import Geolocated from '../geo/location'
 // TODO: Move me to separate component if we have time
 // import MapModal from '../mapModal';
 import './map.css';
@@ -39,13 +40,7 @@ const DEFAULT_VIEWPORT = {
     preferCanvas: true
 };
 
-class SimpleMap extends Component<
-    {},
-    {
-        viewport: Viewport,
-        markers: GeoJSON
-    },
-    > {
+class SimpleMap extends Component {
     state = {
         viewport: DEFAULT_VIEWPORT,
         markers: [],
@@ -62,18 +57,39 @@ class SimpleMap extends Component<
         customizableTreeDetail: 'Customizable Tree Detail',
     };
 
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     // console.log(nextProps)
+    //     console.log(nextState.viewport)
+    //     console.log(this.state.viewport)
+    //     if (this.state.viewport === nextState.viewport) {
+    //       return false;
+    //     } else {
+    //       return true;
+    //     }
+    //   }
 
+    setLocation(location) {
+        const viewport = {
+            center: [location.latitude, location.longitude],
+            zoom: 13,
+            maxZoom: 20,
+            preferCanvas: true
+        }
+        if(this.state.viewport.center[0] != location.latitude) this.setState({viewport: viewport})
+    }
 
     componentDidMount = () => {
         var me = this;
 
         (async () => {
-            const response = await fetch('./data/groningen_trees_wgs84.geojson');
-
+            // const response = await fetch('./data/groningen_trees_wgs84.geojson');
+            const response = await fetch('./data/smallSet.geojson');
             const data = await response.json();
+            // this.setState({points: data})
             const markers = <GeoJSON
                 data={data}
                 pointToLayer={(geoObj, latLng) => {
+
                     return L.circleMarker(latLng, {
                         radius: 2,
                         color: '#226d29'
@@ -138,10 +154,12 @@ class SimpleMap extends Component<
 
         return (
             <div>
+                <Geolocated setLocation={(value) => this.setLocation(value)} />
                 <Map
                     ref="treemap"
                     onClick={this.onClickReset}
                     onViewportChanged={this.onViewportChanged}
+                    onMoveend={(value) => console.log(value)}
                     maxZoom={20}
                     viewport={this.state.viewport}>
                     <TileLayer
@@ -157,7 +175,10 @@ class SimpleMap extends Component<
                         {this.state.markers}
                     </MarkerClusterGroup>
                 </Map>
-
+                <Graph 
+                    positive={20}
+                    negative={23}
+                />
                 <Dialog
                     open={this.state.open}
                     TransitionComponent={Transition}
