@@ -68,7 +68,11 @@ class SimpleMap extends Component {
     var me = this;
 
     this.treeMap = new TreeMap(true);
-    this.treeMap.connect().then(() => {
+    this.treeMap.connect().then((bcTreeMap) => {
+
+        bcTreeMap.onAddTree = this.onAddTree.bind(me);
+        bcTreeMap.onUpdateTree = this.onUpdateTree.bind(me);
+
         me.treeMap.getGEOJson().then(geojson => {
             me.state.data = geojson;
             const markers = me.getMarkers(me.state.data);
@@ -104,6 +108,18 @@ class SimpleMap extends Component {
     } />;
   }
 
+    onUpdateTree(data) {
+        console.log(data);
+    }
+
+    onAddTree(feature) {
+        const me = this;
+        const features = me.state.data.features;
+        features.push(feature);
+        const markers = me.getMarkers(this.state.data);
+        this.setState({ markers });
+    }
+
   handleClickOpen (feature) {
     const { properties, geometry } = feature;
     this.setState({
@@ -118,6 +134,8 @@ class SimpleMap extends Component {
 
   onMapClick(event) {
 
+    const me = this;
+
     const geometry = {
       coordinates: [event.latlng.lng, event.latlng.lat],
       type: "Point"
@@ -125,11 +143,9 @@ class SimpleMap extends Component {
 
     const id = Math.random().toString(36).replace(/[^a-z]+/g, '');
     const feature = this.treeMap.getNewTreeTemplate(id, 0, new Date().getFullYear(), geometry);
-
-    const features = this.state.data.features;
-    features.push(feature);
-    const markers = this.getMarkers(this.state.data);
-    this.setState({ markers });
+    this.treeMap.addTree(feature).then(data => {
+        //add waiting icon
+    }).catch(err => console.log(err));
   };
 
   onViewportChanged(viewport: Viewport) {

@@ -19,8 +19,8 @@ export class TreeMap {
                 const cls = await result.text();
                 window.treeMap = await client.getContract(cls, account, '1234');
                 const treeMap = window.treeMap;
-                treeMap.onAddTree = this.onAddTree;
-                treeMap.onUpdateTree = this.onUpdateTree;
+                //treeMap.onAddTree = this.onAddTree;
+                //treeMap.onUpdateTree = this.onUpdateTree;
                 resolve(treeMap);
             } catch (err) {
                 reject(err);
@@ -63,17 +63,11 @@ export class TreeMap {
         return window.treeMap.updateTree(this.dataset, feature);
     }
 
+    addTree(feature) {
+        return window.treeMap.addTree(this.dataset, feature);
+    }
+
     getGEOJson() {
         return window.treeMap.getTrees(this.dataset);
     }
-
-
-    onUpdateTree(data) {
-        console.log(data);
-    }
-
-    onAddTree(data) {
-        console.log(data);
-    }
-
 }
