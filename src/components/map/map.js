@@ -19,6 +19,10 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import ButtonBase from '@material-ui/core/ButtonBase';
+import Input from '@material-ui/core/Input';
+import { debug } from 'util';
 
 require('react-leaflet-markercluster/dist/styles.min.css');
 
@@ -35,6 +39,7 @@ const DEFAULT_VIEWPORT = {
 
 class SimpleMap extends Component {
   state = {
+    data: {},
     viewport: DEFAULT_VIEWPORT,
     markers: [],
     open: false,
@@ -57,6 +62,13 @@ class SimpleMap extends Component {
     customizableTreeDetail: 'Customizable Tree Detail',
   };
 
+  constructor(props) {
+    super(props);
+
+    this.onClickReset.bind(this);
+    this.leafletMap = React.createRef();
+  }
+
   treeMap: TreeMap;
 
   setLocation(location) {
@@ -76,6 +88,7 @@ class SimpleMap extends Component {
 
     this.treeMap.connect().then(() => {
         me.treeMap.getGEOJson().then(geojson => {
+            me.state.data = geojson;
             const markers = <GeoJSON
                 data = {geojson}
                 pointToLayer = {
@@ -128,7 +141,44 @@ class SimpleMap extends Component {
     this.setState({ open: false });
   };
 
-  onMapClick() {
+  onClickReset = event => {
+
+    const geometry = {
+      coordinates: [event.latlng[0], event.latlng[1]],
+      type: "Point"
+    };
+
+    const properties = {
+      id: Math.random().toString(36).replace(/[^a-z]+/g, ''),
+      city: 'Groningen',
+      houseNumber: null,
+      xCord: null,
+      yCord: null,
+      geometry: [],
+      specieCode: null,
+      specieNameNed: null,
+      specieNameLat: 'Tilia vulgaris', // hardcoded for now
+      dateOfBirth: null,
+      heightNumber: null,
+      heightDescription: null,
+      ownerShip: null,
+      plantingDesc: null,
+    };
+
+    const item = {
+      geometry: geometry,
+      properties: properties,
+      type: "Feature"
+    }
+
+    const features = this.state.data.features.slice();
+    features.push(item);
+
+    const newData = Object.assign(this.state.data, {features});
+
+    this.setState({
+      data: newData
+    });
   };
 
   onViewportChanged(viewport: Viewport) {
@@ -172,12 +222,12 @@ class SimpleMap extends Component {
           /*<Geolocated setLocation={(value) => this.setLocation(value)} />*/
         }
         <Map
-          ref="treemap"
-          onClick={this.onMapClick}
-          onViewportChanged = { this.onViewportChanged }
-          onMoveend = {(value) => console.log(value)}
-          maxZoom = {20}
-          viewport = {this.state.viewport}>
+          ref={this.leafletMap}
+          onClick={(e) => this.onClickReset(e)}
+          onViewportChanged={this.onViewportChanged}
+          onMoveend={(value) => console.log(value)}
+          maxZoom={20}
+          viewport={this.state.viewport}>
           <TileLayer
             attribution = '&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             url = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
