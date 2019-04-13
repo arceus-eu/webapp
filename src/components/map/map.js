@@ -74,8 +74,8 @@ class SimpleMap extends Component {
             zoom: 13,
             maxZoom: 20,
             preferCanvas: true
-        }
-        if(this.state.viewport.center[0] != location.latitude) this.setState({viewport: viewport})
+        };
+        if(this.state.viewport.center[0] !== location.latitude) this.setState({viewport: viewport})
     }
 
     componentDidMount = () => {
@@ -143,7 +143,7 @@ class SimpleMap extends Component {
 
     renderTreeDetails = () => {
         return this.state.treeDetails;
-    }
+    };
 
     handleTreeDetailChange = () => event => {
         this.setState({ customizableTreeDetail: event.target.value });
@@ -175,7 +175,7 @@ class SimpleMap extends Component {
                         {this.state.markers}
                     </MarkerClusterGroup>
                 </Map>
-                <Graph 
+                <Graph
                     positive={20}
                     negative={23}
                 />
