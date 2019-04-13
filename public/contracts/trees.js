@@ -13,6 +13,10 @@ class TreeMap {
         if(this.state.trees[tree.id])
             throw new Error('The tree is already in the chain, please use update function');
 
+        if (!tree.values) {
+            tree.values = [];
+        }
+
         this.state.trees[tree.id] = tree;
         return tree;
     }
@@ -30,6 +34,11 @@ class TreeMap {
             throw new Error('Tree not found');
 
         return this.state.trees[id];
+    }
+
+    getNormalizedTreeValue(id) {
+        const tree = this.getTree(id);
+        const values = tree.values || [];
     }
 
     getTrees () {
