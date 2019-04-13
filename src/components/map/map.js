@@ -66,34 +66,37 @@ class SimpleMap extends Component {
     var me = this;
 
     this.treeMap = new TreeMap(true);
-
     this.treeMap.connect().then(() => {
         me.treeMap.getGEOJson().then(geojson => {
             me.state.data = geojson;
-            const markers = <GeoJSON
-                data = {me.state.data}
-                pointToLayer = {
-                  (geoObj, latLng) => {
-                    return L.circleMarker(latLng, {
-                        radius: 2,
-                        color: '#226d29'
-                    })
-                  }
-                }
-                onEachFeature={(feature, layer) => {
-                    layer.on('click', (tree) => {
-                        me.handleClickOpen(feature);
-                    })
-                }
-                }
-            />;
-
+            const markers = me.getMarkers(me.state.data);
             me.setState({ markers });
         }).catch(err => {
           console.log(err);
         });
     });
   };
+
+  getMarkers(data) {
+
+    const me = this;
+    return <GeoJSON
+        data = {data}
+        pointToLayer = {
+            (geoObj, latLng) => {
+                return L.circleMarker(latLng, {
+                    radius: 2,
+                    color: '#226d29'
+                })
+            }
+        }
+        onEachFeature={(feature, layer) => {
+            layer.on('click', (tree) => {
+                me.handleClickOpen(feature);
+            })
+          }
+    } />;
+  }
 
   handleClickOpen (feature) {
     const { properties, geometry } = feature;
@@ -121,14 +124,12 @@ class SimpleMap extends Component {
     features.push(feature);
 
     const newData = Object.assign(this.state.data, {features});
+    const markers = this.getMarkers(newData);
 
-    this.setState({
-      data: newData
-    });
+    this.setState({ markers });
   };
 
   onViewportChanged(viewport: Viewport) {
-    // this.setState({ viewport })
   };
 
   renderSelectedTree() {
