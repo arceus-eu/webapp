@@ -43,6 +43,8 @@ class SimpleMap extends Component {
     customizableTreeDetail: 'Customizable Tree Detail',
   };
 
+  layerCount = 0;
+
   constructor(props) {
     super(props);
 
@@ -71,6 +73,7 @@ class SimpleMap extends Component {
             me.state.data = geojson;
             const markers = me.getMarkers(me.state.data);
             me.setState({ markers });
+            this.layerCount++;
         }).catch(err => {
           console.log(err);
         });
@@ -80,7 +83,10 @@ class SimpleMap extends Component {
   getMarkers(data) {
 
     const me = this;
+    this.layerCount++;
+
     return <GeoJSON
+        key={'geo' + this.layerCount}
         data = {data}
         pointToLayer = {
             (geoObj, latLng) => {
@@ -143,7 +149,6 @@ class SimpleMap extends Component {
   handleTreeDetailChange(event) {
     const value = event.target.value;
     const newTree = { heightNumber: value };
-    // debugger;
     const obj = Object.assign(this.state.selectedTree, newTree);
 
     this.setState({ selectedTree: obj });
