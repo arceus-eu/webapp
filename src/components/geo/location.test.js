@@ -1,8 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { shallow } from 'enzyme';
-import App from './App';
+import { Location } from './location'
 
 it('renders without crashing', () => {
-  shallow(<App />);
+  shallow(<Location />);
 });
