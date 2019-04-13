@@ -60,17 +60,6 @@ class SimpleMap extends Component {
     customizableTreeDetail: 'Customizable Tree Detail',
   };
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //     // console.log(nextProps)
-  //     console.log(nextState.viewport)
-  //     console.log(this.state.viewport)
-  //     if (this.state.viewport === nextState.viewport) {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   }
-
   setLocation(location) {
     const viewport = {
       center: [location.latitude, location.longitude],
@@ -81,11 +70,6 @@ class SimpleMap extends Component {
     if (this.state.viewport.center[0] !== location.latitude) this.setState({ viewport: viewport })
   }
 
-  // componentDidMount = async () => {
-
-
-  // };
-
   componentDidMount = () => {
     var me = this;
 
@@ -95,16 +79,13 @@ class SimpleMap extends Component {
       const account = await client.getWorkingAccount();
       const result = await fetch('./contracts/trees.js');
       const cls = await result.text();
-      window.treeMap = await client.deployContract(cls, account, '1234');
-      window.onAddTree = this.onTreeAdd;
-      window.onUpdateTree = this.onTreeUpDate;
-    })();
+      window.treeMap = await client.getContract(cls, account, '1234');
+      const treeMap = window.treeMap;
+      treeMap.onAddTree = this.onTreeAdd;
+      treeMap.onUpdateTree = this.onTreeUpDate;
 
-    (async () => {
-      // const response = await fetch('./data/groningen_trees_wgs84.geojson');
-      const response = await fetch('./data/smallSet.geojson');
-      const data = await response.json();
-      // this.setState({points: data})
+      const data = await treeMap.getTrees('groningen');
+
       const markers = <GeoJSON
         data={data}
         pointToLayer={(geoObj, latLng) => {
@@ -197,7 +178,7 @@ class SimpleMap extends Component {
   }
 
   async getTrees() {
-    console.log('getTrees(): ', await window.treeMap.getTrees());
+    console.log('getTrees(): ', await window.treeMap.getTrees('groningen'));
     debugger;
     return await window.treeMap.getTrees();
   }
@@ -282,11 +263,11 @@ class SimpleMap extends Component {
           </DialogContent>
           <DialogActions>
             <Button size="small" variant="outlined" color="primary" className={classes.button}>Take A Photo</Button>
-            <Button 
+            <Button
               onClick={this.getTrees}
-              size="small" 
-              variant="outlined" 
-              color="secondary" 
+              size="small"
+              variant="outlined"
+              color="secondary"
               className={classes.button}>IDDQD</Button>
             <Button onClick={this.handlePopupClose} color="primary">Close</Button>
           </DialogActions>
