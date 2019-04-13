@@ -120,11 +120,9 @@ class SimpleMap extends Component {
     const id = Math.random().toString(36).replace(/[^a-z]+/g, '');
     const feature = this.treeMap.getNewTreeTemplate(id, 0, new Date().getFullYear(), geometry);
 
-    const features = this.state.data.features.slice();
+    const features = this.state.data.features;
     features.push(feature);
-
-    const newData = Object.assign(this.state.data, {features});
-    const markers = this.getMarkers(newData);
+    const markers = this.getMarkers(this.state.data);
     this.setState({ markers });
   };
 
