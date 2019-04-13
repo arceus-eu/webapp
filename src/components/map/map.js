@@ -154,7 +154,7 @@ class SimpleMap extends Component {
 
         return (
             <div>
-                <Geolocated setLocation={(value) => this.setLocation(value)} />
+                {/*<Geolocated setLocation={(value) => this.setLocation(value)} />*/}
                 <Map
                     ref="treemap"
                     onClick={this.onClickReset}

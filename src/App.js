@@ -9,7 +9,6 @@ class App extends Component {
 
     const client = new Client();
     window.client = client;
-    debugger;
     const account = await client.getWorkingAccount();
     const result = await fetch('./contracts/trees.js');
     const cls = await result.text();
