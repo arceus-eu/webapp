@@ -39,7 +39,14 @@ class SimpleMap extends Component {
     viewport: DEFAULT_VIEWPORT,
     markers: [],
     open: false,
-    selectedTree: {},
+    selectedTree: {
+      properties: {
+        LATNAAM: '',
+        KIEMJAAR: '',
+        OMSCHRIJVP: '',
+        BOOMHOOGTE: '',
+      }
+    },
     customizableTreeDetail: 'Customizable Tree Detail',
   };
 
@@ -71,17 +78,17 @@ class SimpleMap extends Component {
     this.treeMap = new TreeMap(true);
     this.treeMap.connect().then((bcTreeMap) => {
 
-        bcTreeMap.onAddTree = this.onAddTree.bind(me);
-        bcTreeMap.onUpdateTree = this.onUpdateTree.bind(me);
+      bcTreeMap.onAddTree = this.onAddTree.bind(me);
+      bcTreeMap.onUpdateTree = this.onUpdateTree.bind(me);
 
-        me.treeMap.getGEOJson().then(geojson => {
-            me.state.data = geojson;
-            const markers = me.getMarkers(me.state.data);
-            me.setState({ markers });
-            this.layerCount++;
-        }).catch(err => {
-          console.log(err);
-        });
+      me.treeMap.getGEOJson().then(geojson => {
+        me.state.data = geojson;
+        const markers = me.getMarkers(me.state.data);
+        me.setState({ markers });
+        this.layerCount++;
+      }).catch(err => {
+        console.log(err);
+      });
     });
   };
 
@@ -91,43 +98,42 @@ class SimpleMap extends Component {
     this.layerCount++;
 
     return <GeoJSON
-        key={'geo' + this.layerCount}
-        data = {data}
-        pointToLayer = {
-            (geoObj, latLng) => {
-                return L.circleMarker(latLng, {
-                    radius: 2,
-                    color: '#226d29'
-                })
-            }
+      key={'geo' + this.layerCount}
+      data={data}
+      pointToLayer={
+        (geoObj, latLng) => {
+          return L.circleMarker(latLng, {
+            radius: 2,
+            color: '#226d29'
+          })
         }
-        onEachFeature={(feature, layer) => {
-            layer.on('click', (ev) => {
-                me.editorOpen = true;
-                ev.originalEvent.stopPropagation();
-                me.handleClickOpen(feature);
-            })
-          }
-    } />;
+      }
+      onEachFeature={(feature, layer) => {
+        layer.on('click', (ev) => {
+          me.editorOpen = true;
+          ev.originalEvent.stopPropagation();
+          me.handleClickOpen(feature);
+        })
+      }
+      } />;
   }
 
-    onUpdateTree(data) {
-        console.log(data);
-    }
+  onUpdateTree(data) {
+    console.log(data);
+  }
 
-    onAddTree(feature) {
+  onAddTree(feature) {
+    const me = this;
+    const features = me.state.data.features;
+    features.push(feature);
+    const markers = me.getMarkers(this.state.data);
+    this.setState({ markers });
+  }
 
-        const me = this;
-        const features = me.state.data.features;
-        features.push(feature);
-        const markers = me.getMarkers(this.state.data);
-        this.setState({ markers });
-    }
-
-  handleClickOpen (feature) {
+  handleClickOpen(feature) {
     const { properties, geometry } = feature;
     this.setState({
-       selectedTree: feature
+      selectedTree: feature
     });
     this.setState({ open: true });
   };
@@ -138,10 +144,9 @@ class SimpleMap extends Component {
   };
 
   onMapClick(event) {
-
     const me = this;
     if (me.editorOpen)
-        return;
+      return;
 
     const geometry = {
       coordinates: [event.latlng.lng, event.latlng.lat],
@@ -151,20 +156,67 @@ class SimpleMap extends Component {
     const id = Math.random().toString(36).replace(/[^a-z]+/g, '');
     const feature = this.treeMap.getNewTreeTemplate(id, 0, new Date().getFullYear(), geometry);
     this.treeMap.addTree(feature).then(data => {
-        //add waiting icon
+      //add waiting icon
     }).catch(err => console.log(err));
   };
 
   onViewportChanged(viewport: Viewport) {
   };
 
-  renderSelectedTree() {
+  handleFormInputChange = name => event => {
+    debugger;
+    const me = this;
+    // proper state property name
+    
+    this.setState({
+      selectedTree: {
+        properties: {
+          [name]: event.target.value
+        }
+      }   
+    });
+  };
+
+  renderSelectedTree = (classes) => {
+    const me = this;
     return (
-      <div className={this.props.classes.root}>
-        Specie Name Latin: <strong>{this.state.selectedTree.specieNameLat}</strong> <br />
-        Date of Birth: <strong>{this.state.selectedTree.dateOfBirth}</strong> <br />
-        Ownership: <strong>{this.state.selectedTree.ownerShip}</strong> <br />
-        Height: <strong>{this.state.selectedTree.heightNumber}</strong> <br />
+      <div className={classes.root}>
+        <TextField
+          id="outlined-name"
+          label="Specie Name Latin"
+          className={classes.textField}
+          value={this.state.selectedTree.properties.LATNAAM}
+          onChange={this.handleFormInputChange('LATNAAM').bind(me)}
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          id="outlined-name"
+          label="Date of Birth"
+          className={classes.textField}
+          value={this.state.selectedTree.properties.KIEMJAAR}
+          onChange={this.handleFormInputChange('KIEMJAAR').bind(me)}
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          id="outlined-name"
+          label="Ownership"
+          className={classes.textField}
+          value={this.state.selectedTree.properties.OMSCHRIJVP}
+          onChange={this.handleFormInputChange('OMSCHRIJVP').bind(me)}
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          id="outlined-name"
+          label="Height"
+          className={classes.textField}
+          value={this.state.selectedTree.properties.BOOMHOOGTE}
+          onChange={this.handleFormInputChange('BOOMHOOGTE').bind(me)}
+          margin="normal"
+          variant="outlined"
+        />
       </div>
     );
   };
@@ -180,6 +232,7 @@ class SimpleMap extends Component {
 
   updateTree() {
     var me = this;
+
     this.treeMap.updateTree(me.state.selectedTree).then(data => {
       console.log(data);
     });
@@ -196,14 +249,14 @@ class SimpleMap extends Component {
         }
         <Map
           ref={this.leafletMap}
-          onClick={(e)=> this.onMapClick(e)}
+          onClick={(e) => this.onMapClick(e)}
           onViewportChanged={this.onViewportChanged}
           onMoveend={(value) => console.log(value)}
           maxZoom={20}
           viewport={this.state.viewport}>
           <TileLayer
-            attribution = '&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            url = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
           <MarkerClusterGroup
@@ -233,7 +286,7 @@ class SimpleMap extends Component {
                 <Grid container spacing={24}>
                   <Grid item xs={12}>
                     {/* Selected Tree Details */}
-                    {this.renderSelectedTree()}
+                    {this.renderSelectedTree(classes)}
                   </Grid>
 
                   <Grid item xs>
@@ -259,7 +312,7 @@ class SimpleMap extends Component {
               className={classes.button}>Take A Photo</Button>
 
             <Button
-              onClick={this.updateTree}
+              onClick={this.updateTree.bind(me)}
               size="small"
               variant="outlined"
               color="secondary"
@@ -278,7 +331,6 @@ const styles = theme => ({
     flexGrow: 1,
   },
   textField: {
-    width: '100%',
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
