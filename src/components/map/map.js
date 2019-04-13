@@ -79,12 +79,13 @@ class SimpleMap extends Component {
       const account = await client.getWorkingAccount();
       const result = await fetch('./contracts/trees.js');
       const cls = await result.text();
-      window.treeMap = await client.getContract(cls, account, '1234');
+      window.treeMap = await client.deployContract(cls, account, '1234');
       const treeMap = window.treeMap;
       treeMap.onAddTree = this.onTreeAdd;
       treeMap.onUpdateTree = this.onTreeUpDate;
 
       const data = await treeMap.getTrees('groningen');
+      debugger
 
       const markers = <GeoJSON
         data={data}

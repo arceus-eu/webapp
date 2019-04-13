@@ -2,7 +2,7 @@ class TreeMap {
 
     constructor(initialState) {
         this.state = initialState || {
-            trees : {
+            datasets : {
                 groningen : {
                     "type": "FeatureCollection",
                     "name": "groningen_trees_wgs84",
@@ -55,25 +55,54 @@ class TreeMap {
                         { "type": "Feature", "properties": { "DS_ID": "02", "TAB_ID": "01", "LINKNR": "0000000060", "VOLGNR": "AAB", "CODE": "0010", "HOEK": 0, "OBJECT": "001144", "OMSCHRIJV": "UBBO EMMIUSSINGEL 23", "WOONPLAATS": "1070", "OMSCHRIJVA": "Groningen", "STRAAT": "01610", "OMSCHRIJVB": "Ubbo Emmiussingel", "STADSDEEL": "5", "OMSCHRIJVC": "Binnenstad", "BUURT": "0001", "OMSCHRIJVD": "Binnenstad-Zuid", "BOOMSOORT": "TIVULGAR", "NEDNAAM": "Hollandse linde", "LATNAAM": "Tilia vulgaris", "KIEMJAAR": 1916, "AANTAL": 1, "BOOMHOOGTE": "24", "OMSCHRIJVE": "18-24m.", "WEGTYPE": null, "BEREIKBAAR": null, "OMSCHRIJVK": null, "OMSCHRIJVM": null, "EIGENAAR": "P", "OMSCHRIJVO": "Particulier", "BEHEERDER": "P", "OMSCHRIJVP": "Particulier", "BELUCHTING": 0, "STANDPLAAT": "E", "OMSCHRIJVQ": "Boomspiegel beplanting", "OMSCHRIJVT": null, "STAMDIAM": 0, "KROONDIAM": 0.0, "OMSCHRIJVU": null, "POTMONUM": 0, "MEERSTAMM": 0, "XCOORD": 233807.831, "YCOORD": 581401.959 }, "geometry": { "type": "Point", "coordinates": [ 6.566908087794602, 53.213433912360649 ] } }
                     ]
                 }
+            },
+            types: {
+                "Aesculus hippocastanum" : { ecological: 4, carbon: 3, wildlife: 7, emotional : 5 },
+                "Tilia vulgaris" :  { ecological: 7, carbon: 3, wildlife: 7, emotional : 5 },
+                "Acer pseudoplatanus 'Leopoldii'" :  { ecological: 2, carbon: 3, wildlife: 7, emotional : 5 },
+                "Populus nigra 'Italica'" :  { ecological: 4, carbon: 3, wildlife: 7, emotional : 5 },
+                "Fagus sylv. 'purpurea'" :  { ecological: 6, carbon: 8, wildlife: 7, emotional : 2 },
+                "Tilia platyphyllos" :  { ecological: 8, carbon: 3, wildlife: 7, emotional : 3 },
+                "Acer platanoides" :  { ecological: 4, carbon: 3, wildlife: 4, emotional : 9 },
+                "Tilia tomentosa" :  { ecological: 4, carbon: 3, wildlife: 8, emotional : 7 },
+                "Acer saccharinum":  { ecological: 8, carbon: 3, wildlife: 7, emotional : 5 },
+                "Acer pseudoplatanus" :  { ecological: 3, carbon: 3, wildlife: 7, emotional : 2 },
+                "Pterocarya fraxinifolia": { ecological: 8, carbon: 3, wildlife: 7, emotional : 6 },
+                "Platanus x hispanica" :  { ecological: 10, carbon: 7, wildlife: 7, emotional : -5 },
+                "Salix sepulcralis 'Chrysocoma'":  { ecological: 2, carbon: 3, wildlife: 7, emotional : 5 },
+                "Pyrus communis":  { ecological: 5, carbon: 1, wildlife: 2, emotional : 8 }
             }
         };
+
+        const dataset = this.getTrees('groningen');
+        dataset.features.forEach(feature => {
+           feature.values = this.getNormalizedTreeValue(feature);
+        }, this);
     }
 
     addTree (dataset, feature) {
         const trees = this.getTrees(dataset);
+        feature.values = this.getNormalizedTreeValue(feature);
         trees.features.push(feature);
+        return feature;
     }
 
     updateTree (dataset, feature) {
-        const tree = this.getTree(dataset, tree);
-        Object.assign(tree, feature);
-        return tree;
+
+        if (feature && feature.properties && feature.properties.LINKNR) {
+            const tree = this.getTree(dataset, feature.properties.LINKNR);
+            Object.assign(tree, feature);
+            tree.values = this.getNormalizedTreeValue(tree);
+            return tree;
+        } else {
+            throw new Error('Not a proper tree feature');
+        }
     }
 
     getTree (dataset, id) {
 
         const trees = this.getTrees(dataset);
-        const tree = trees.find(tree => tree.properties.LINKNR === id);
+        const tree = trees.features.find(tree => tree.properties.LINKNR === id);
 
         if (!tree)
             throw new Error('Tree not found');
@@ -81,14 +110,55 @@ class TreeMap {
         return tree;
     }
 
-    getNormalizedTreeValue(dataset, id) {
-        const tree = this.getTree(dataset, id);
-        const values = tree.values || [];
+    getValuesOnTreeType (latName) {
+        const type = this.state.types[latName];
+        if (type) {
+            return type;
+        } else {
+            throw new Error('Type not in recognized, please add value map');
+        }
+    }
+
+    setValuesOnTreeType(latName, values) {
+        if (!this.state.types[latName]) {
+
+            if (!values.hasOwnProperty('ecological'))
+                throw new Error('Ecological value missing');
+
+            if (!values.hasOwnProperty('carbon'))
+                throw new Error('Carbon value missing');
+
+            if (!values.hasOwnProperty('wildlife'))
+                throw new Error('WildLife value missing');
+
+            if (!values.hasOwnProperty('emotional'))
+                throw new Error('Emotional value missing');
+
+            this.state.types[latName] = values;
+        }
+        else {
+            throw new Error('Values already set');
+        }
+    }
+
+    getNormalizedTreeValue(feature) {
+        const values = feature.values || [];
+
+        const height = feature.properties.BOOMHOOGTE;
+        const year = feature.properties.KIEMJAAR;
+        const defaults = this.getValuesOnTreeType(tree.properties.LATNAAM);
+
+        return {
+            ecological : defaults.ecological * ( height / (year / 100) ),
+            carbon : defaults.carbon * ( height / (year / 100) ),
+            wildlife : defaults.wildlife * ( height / (year / 100) ),
+            emotional : defaults.emotional * ( height / (year / 100) )
+        }
     }
 
     getTrees (dataset) {
-        if (this.state.trees[dataset])
-            return this.state.trees[dataset];
+        if (this.state.datasets[dataset])
+            return this.state.datasets[dataset];
         else
             throw new Error('Dataset not found');
     }
