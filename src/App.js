@@ -13,7 +13,25 @@ class App extends Component {
     const result = await fetch('./contracts/trees.js');
     const cls = await result.text();
     window.treeMap = await client.deployContract(cls, account, '1234');
+    window.onAddTree = this.onTreeAdd;
+    window.onUpdateTree = this.onTreeUpDate;
   };
+
+  onTreeUpDate (data) {
+    console.log(data);
+  }
+
+  onTreeAdd (data) {
+    console.log(data);
+  }
+
+  async addTree (tree) {
+      return await window.treeMap.addTree(tree);
+  }
+
+  async updateTree (tree) {
+    return await window.treeMap.updateTree(tree);
+  }
 
   render() {
     return (

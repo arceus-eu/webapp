@@ -111,16 +111,23 @@ class SimpleMap extends Component {
 
     handleClickOpen = (feature) => {
         const { properties, geometry } = feature;
-
         this.setState({
             treeDetails: {
                 properties: {
-                    id: properties.OBJECT,
+                    id: properties.LINKNR,
                     city: properties.OMSCHRIJVA,
                     houseNumber: properties.OMSCHRIJV,
                     xCord: properties.XCOORD,
                     yCord: properties.YCOORD,
-                    geometry: geometry.coordinates
+                    geometry: geometry.coordinates,
+                    specieCode: properties.BOOMSOORT,
+                    specieNameNed: properties.NEDNAAM,
+                    specieNameLat: properties.LATNAAM,
+                    dateOfBirth: properties.KIEMJAAR,
+                    heightNumber: properties.BOOMHOOGTE,
+                    heightDescription: properties.OMSCHRIJVE,
+                    ownerShip: properties.EIGENAAR,
+                    plantingDesc: properties.OMSCHRIJVQ
                 }
             }
         });
