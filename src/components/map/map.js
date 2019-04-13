@@ -20,6 +20,9 @@ import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 
+import { SnackbarProvider, withSnackbar } from 'notistack';
+
+
 require('react-leaflet-markercluster/dist/styles.min.css');
 
 function Transition(props) {
@@ -128,11 +131,9 @@ class SimpleMap extends Component {
   }
 
   onUpdateTree(feature) {
-    // debugger;
     this.setState({
       selectedTree: feature
     });
-    // console.log(data);
   }
 
   onAddTree(feature) {
@@ -144,8 +145,6 @@ class SimpleMap extends Component {
   }
 
   handleClickOpen(feature) {
-    // const { properties, geometry } = feature;
-
     let featureToAdd;
     if (JSON.stringify(this.state.selectedTree) !== JSON.stringify(feature) && (JSON.stringify(this.state.selectedTree) !== JSON.stringify(DEFAULT_TREE))) {
       featureToAdd = this.state.selectedTree;
@@ -154,11 +153,10 @@ class SimpleMap extends Component {
       featureToAdd = feature;
     }
 
-    // debugger;
-
     this.setState({
       selectedTree: featureToAdd
     });
+
     this.setState({ open: true });
   };
 
@@ -168,6 +166,7 @@ class SimpleMap extends Component {
   };
 
   onMapClick(event) {
+    debugger;
     const me = this;
     if (me.editorOpen)
       return;
@@ -249,7 +248,6 @@ class SimpleMap extends Component {
   handleTreeDetailChange(event) {
     const value = event.target.value;
     const newTree = { heightNumber: value };
-    // debugger;
     const obj = Object.assign(this.state.selectedTree, newTree);
 
     this.setState({ selectedTree: obj });
@@ -262,6 +260,7 @@ class SimpleMap extends Component {
     this.treeMap.updateTree(me.state.selectedTree).then(data => {
       console.log(data);
     });
+    this.props.enqueueSnackbar("Saved! Changes may take time to take effect.");
   };
 
   render() {
@@ -365,4 +364,5 @@ const styles = theme => ({
 
 });
 
-export default withStyles(styles)(SimpleMap);
+// export withSnackbar(SimpleMap);
+export default withSnackbar(withStyles(styles)(SimpleMap));
