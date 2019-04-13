@@ -44,6 +44,7 @@ class SimpleMap extends Component {
   };
 
   layerCount = 0;
+  editorOpen = false;
 
   constructor(props) {
     super(props);
@@ -101,7 +102,9 @@ class SimpleMap extends Component {
             }
         }
         onEachFeature={(feature, layer) => {
-            layer.on('click', (tree) => {
+            layer.on('click', (ev) => {
+                me.editorOpen = true;
+                ev.originalEvent.stopPropagation();
                 me.handleClickOpen(feature);
             })
           }
@@ -113,6 +116,7 @@ class SimpleMap extends Component {
     }
 
     onAddTree(feature) {
+
         const me = this;
         const features = me.state.data.features;
         features.push(feature);
@@ -129,12 +133,15 @@ class SimpleMap extends Component {
   };
 
   handlePopupClose() {
+    this.editorOpen = false;
     this.setState({ open: false });
   };
 
   onMapClick(event) {
 
     const me = this;
+    if (me.editorOpen)
+        return;
 
     const geometry = {
       coordinates: [event.latlng.lng, event.latlng.lat],
@@ -180,6 +187,7 @@ class SimpleMap extends Component {
 
   render() {
     const { classes } = this.props;
+    const me = this;
 
     return (
       <Grid container>
@@ -257,7 +265,7 @@ class SimpleMap extends Component {
               color="secondary"
               className={classes.button}>Save</Button>
 
-            <Button onClick={this.handlePopupClose} color="primary">Close</Button>
+            <Button onClick={this.handlePopupClose.bind(me)} color="primary">Close</Button>
           </DialogActions>
         </Dialog>
       </Grid>
