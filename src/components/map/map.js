@@ -1,18 +1,13 @@
 import React, { Component } from 'react';
 
-import { JaavTMClient as Client } from "../../blockchain/client.js";
-
 import 'bootstrap/dist/css/bootstrap.css';
 import { Map, TileLayer, type Viewport, CircleMarker, GeoJSON } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
-import { Graph } from '../graph/linegraph'
-import Geolocated from '../geo/location'
-// TODO: Move me to separate component if we have time
-// import MapModal from '../mapModal';
-import './map.css';
+import { TreeMap } from './treemap';
 
 // styles
+import './map.css';
 import { withStyles } from '@material-ui/core/styles';
 
 import Button from '@material-ui/core/Button';
@@ -23,11 +18,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import ButtonBase from '@material-ui/core/ButtonBase';
-import Input from '@material-ui/core/Input';
 
 require('react-leaflet-markercluster/dist/styles.min.css');
 
@@ -66,6 +57,8 @@ class SimpleMap extends Component {
     customizableTreeDetail: 'Customizable Tree Detail',
   };
 
+  treeMap: TreeMap;
+
   setLocation(location) {
     const viewport = {
       center: [location.latitude, location.longitude],
@@ -79,43 +72,36 @@ class SimpleMap extends Component {
   componentDidMount = () => {
     var me = this;
 
-    (async () => {
-      const client = new Client();
-      window.client = client;
-      const account = await client.getWorkingAccount();
-      const result = await fetch('./contracts/trees.js');
-      const cls = await result.text();
-      window.treeMap = await client.getContract(cls, account, '1234');
-      const treeMap = window.treeMap;
-      treeMap.onAddTree = this.onTreeAdd;
-      treeMap.onUpdateTree = this.onTreeUpDate;
+    this.treeMap = new TreeMap(true);
 
-      const data = await treeMap.getTrees('groningen');
+    this.treeMap.connect().then(() => {
+        me.treeMap.getGEOJson().then(geojson => {
+            const markers = <GeoJSON
+                data = {geojson}
+                pointToLayer = {
+                  (geoObj, latLng) => {
+                    return L.circleMarker(latLng, {
+                        radius: 2,
+                        color: '#226d29'
+                    })
+                  }
+                }
+                onEachFeature={(feature, layer) => {
+                    layer.on('click', (tree) => {
+                        me.handleClickOpen(feature);
+                    })
+                }
+                }
+            />;
 
-      const markers = <GeoJSON
-        data={data}
-        pointToLayer={(geoObj, latLng) => {
-
-          return L.circleMarker(latLng, {
-            radius: 2,
-            color: '#226d29'
-          })
-        }
-        }
-        onEachFeature={(feature, layer) => {
-          layer.on('click', (tree) => {
-            // Show modal with details
-            this.handleClickOpen(feature);
-          })
-        }
-        }
-      />;
-
-      me.setState({ markers });
-    })();
+            me.setState({ markers });
+        }).catch(err => {
+          console.log(err);
+        });
+    });
   };
 
-  handleClickOpen = (feature) => {
+  handleClickOpen (feature) {
     const { properties, geometry } = feature;
     this.setState({
       selectedTree: {
@@ -135,24 +121,21 @@ class SimpleMap extends Component {
         plantingDesc: properties.OMSCHRIJVQ
       }
     });
-    // debugger;
     this.setState({ open: true });
   };
 
-  handlePopupClose = () => {
+  handlePopupClose() {
     this.setState({ open: false });
   };
 
-  onClickReset = () => {
-    // TODO: For now we have disabled reset
-    // this.setState({ viewport: DEFAULT_VIEWPORT })
+  onMapClick() {
   };
 
-  onViewportChanged = (viewport: Viewport) => {
+  onViewportChanged(viewport: Viewport) {
     this.setState({ viewport })
   };
 
-  renderSelectedTree = () => {
+  renderSelectedTree() {
     return (
       <div className={this.props.classes.root}>
         Specie Name Latin: <strong>{this.state.selectedTree.specieNameLat}</strong> <br />
@@ -163,7 +146,7 @@ class SimpleMap extends Component {
     );
   };
 
-  handleTreeDetailChange = event => {
+  handleTreeDetailChange(event) {
     const value = event.target.value;
     const newTree = { heightNumber: value };
     // debugger;
@@ -172,55 +155,32 @@ class SimpleMap extends Component {
     this.setState({ selectedTree: obj });
   };
 
-  // BLOCKCHAIN START
-  onTreeUpDate(data) {
-    console.log(data);
-  }
 
-  onTreeAdd(data) {
-    console.log(data);
-  }
-
-  async getTree(id) {
-    return await window.treeMap.getTree(id);
-  }
-
-  async getTrees() {
-    console.log('getTrees(): ', await window.treeMap.getTrees('groningen'));
-    // debugger;
-    return await window.treeMap.getTrees();
-  }
-
-  async addTree(tree) {
-    return await window.treeMap.addTree(tree);
-  }
-
-  updateTree = () => {
+  updateTree() {
     var me = this;
-    (async () => {
-      const tree = await me.state.selectedTree;
-      debugger;
-      return await window.treeMap.updateTree(tree);
-    })();
-  }
-  // BLOCKCHAIN END
+    this.treeMap.updateTree(me.state.selectedTree).then(data => {
+      console.log(data);
+    });
+  };
 
   render() {
     const { classes } = this.props;
 
     return (
       <Grid container>
-        {/*<Geolocated setLocation={(value) => this.setLocation(value)} />*/}
+        {
+          /*<Geolocated setLocation={(value) => this.setLocation(value)} />*/
+        }
         <Map
           ref="treemap"
-          onClick={this.onClickReset}
-          onViewportChanged={this.onViewportChanged}
-          onMoveend={(value) => console.log(value)}
-          maxZoom={20}
-          viewport={this.state.viewport}>
+          onClick={this.onMapClick}
+          onViewportChanged = { this.onViewportChanged }
+          onMoveend = {(value) => console.log(value)}
+          maxZoom = {20}
+          viewport = {this.state.viewport}>
           <TileLayer
-            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution = '&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
           <MarkerClusterGroup
@@ -231,10 +191,7 @@ class SimpleMap extends Component {
             {this.state.markers}
           </MarkerClusterGroup>
         </Map>
-        {/* <Graph
-          positive={20}
-          negative={23}
-        /> */}
+        {}
         <Dialog
           open={this.state.open}
           TransitionComponent={Transition}
@@ -312,10 +269,7 @@ const styles = theme => ({
   },
   button: {
     margin: theme.spacing.unit,
-  },
-  input: {
-    display: 'none',
-  },
+  }
 
 });
 

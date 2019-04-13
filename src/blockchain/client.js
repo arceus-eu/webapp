@@ -8,11 +8,15 @@ export class JaavTMClient {
     address: string; // contract address set in environment
     contract: any;
     connected = false;
+    settings: any;
 
-    constructor() {
-        this.client = new WebClient(environment.tendermintHost);
-        if (environment.production) {
-            this.address = environment.contract;
+    constructor(production) {
+
+        this.settings = production ? environment.production : environment.development;
+        this.client = new WebClient(this.settings.tendermintHost);
+
+        if (production) {
+            this.address = this.settings.contract;
         } else {
             this.address = window.localStorage.getItem('address');
         }
@@ -32,9 +36,11 @@ export class JaavTMClient {
     }
 
     getWorkingAccount() {
+
+        const settings = this.settings;
         return new Promise((resolve, reject) => {
-            this.getAccount(environment.name, environment.password).then(result => resolve(result.account)).catch(()=> {
-               this.createAccount(environment.name, environment.password).then(result => resolve(result.address)).catch(reject);
+            this.getAccount(settings.name, settings.password).then(result => resolve(result.account)).catch(()=> {
+               this.createAccount(settings.name, settings.password).then(result => resolve(result.address)).catch(reject);
             });
         });
     }
