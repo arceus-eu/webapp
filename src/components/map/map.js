@@ -71,7 +71,7 @@ class SimpleMap extends Component {
         me.treeMap.getGEOJson().then(geojson => {
             me.state.data = geojson;
             const markers = <GeoJSON
-                data = {geojson}
+                data = {me.state.data}
                 pointToLayer = {
                   (geoObj, latLng) => {
                     return L.circleMarker(latLng, {
