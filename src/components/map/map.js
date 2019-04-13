@@ -26,6 +26,15 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
+const DEFAULT_TREE = {
+  properties: {
+    LATNAAM: '',
+    KIEMJAAR: '',
+    OMSCHRIJVP: '',
+    BOOMHOOGTE: '',
+  }
+};
+
 const DEFAULT_VIEWPORT = {
   center: [53.21, 6.56],
   zoom: 13,
@@ -118,8 +127,12 @@ class SimpleMap extends Component {
       } />;
   }
 
-  onUpdateTree(data) {
-    console.log(data);
+  onUpdateTree(feature) {
+    // debugger;
+    this.setState({
+      selectedTree: feature
+    });
+    // console.log(data);
   }
 
   onAddTree(feature) {
@@ -131,9 +144,20 @@ class SimpleMap extends Component {
   }
 
   handleClickOpen(feature) {
-    const { properties, geometry } = feature;
+    // const { properties, geometry } = feature;
+
+    let featureToAdd;
+    if (JSON.stringify(this.state.selectedTree) !== JSON.stringify(feature) && (JSON.stringify(this.state.selectedTree) !== JSON.stringify(DEFAULT_TREE))) {
+      featureToAdd = this.state.selectedTree;
+    }
+    else {
+      featureToAdd = feature;
+    }
+
+    // debugger;
+
     this.setState({
-      selectedTree: feature
+      selectedTree: featureToAdd
     });
     this.setState({ open: true });
   };
@@ -166,9 +190,8 @@ class SimpleMap extends Component {
   handleFormInputChange = name => e => {
 
     const me = this;
-    // TODO: ARC-2019: Punish myself for doing it like so
     let selectedTreeCopy = JSON.parse(JSON.stringify(this.state.selectedTree))
-    selectedTreeCopy.properties[name] = 
+    selectedTreeCopy.properties[name] =
       e.target.type === 'number' ? parseInt(e.target.value) : e.target.value; // Вечность пахнет нефтью...
 
     this.setState({
@@ -226,6 +249,7 @@ class SimpleMap extends Component {
   handleTreeDetailChange(event) {
     const value = event.target.value;
     const newTree = { heightNumber: value };
+    // debugger;
     const obj = Object.assign(this.state.selectedTree, newTree);
 
     this.setState({ selectedTree: obj });
