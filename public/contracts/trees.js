@@ -70,7 +70,8 @@ class TreeMap {
                 "Pterocarya fraxinifolia": { ecological: 8, carbon: 3, wildlife: 7, emotional : 6 },
                 "Platanus x hispanica" :  { ecological: 10, carbon: 7, wildlife: 7, emotional : -5 },
                 "Salix sepulcralis 'Chrysocoma'":  { ecological: 2, carbon: 3, wildlife: 7, emotional : 5 },
-                "Pyrus communis":  { ecological: 5, carbon: 1, wildlife: 2, emotional : 8 }
+                "Pyrus communis":  { ecological: 5, carbon: 1, wildlife: 2, emotional : 8 },
+                "unknown":  { ecological: 1, carbon: 1, wildlife: 1, emotional : 1 }
             }
         };
 
@@ -111,6 +112,7 @@ class TreeMap {
     }
 
     getValuesOnTreeType (latName) {
+        latName = latName || "unknown";
         const type = this.state.types[latName];
         if (type) {
             return type;
@@ -135,6 +137,7 @@ class TreeMap {
                 throw new Error('Emotional value missing');
 
             this.state.types[latName] = values;
+            return this.values;
         }
         else {
             throw new Error('Values already set');
@@ -146,7 +149,7 @@ class TreeMap {
 
         const height = feature.properties.BOOMHOOGTE;
         const year = feature.properties.KIEMJAAR;
-        const defaults = this.getValuesOnTreeType(tree.properties.LATNAAM);
+        const defaults = this.getValuesOnTreeType(feature.properties.LATNAAM);
 
         return {
             ecological : defaults.ecological * ( height / (year / 100) ),
