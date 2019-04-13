@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
-import { Map, TileLayer, type Viewport, CircleMarker, GeoJSON } from 'react-leaflet';
+import { Map, TileLayer, Viewport, GeoJSON } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
 import { Graph } from '../graph/linegraph'
@@ -22,10 +22,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
+// import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import ButtonBase from '@material-ui/core/ButtonBase';
+// import Typography from '@material-ui/core/Typography';
+// import ButtonBase from '@material-ui/core/ButtonBase';
 
 require('react-leaflet-markercluster/dist/styles.min.css');
 
@@ -75,7 +75,7 @@ class SimpleMap extends Component {
             maxZoom: 20,
             preferCanvas: true
         }
-        if(this.state.viewport.center[0] != location.latitude) this.setState({viewport: viewport})
+        if(this.state.viewport.center[0] !== location.latitude) this.setState({viewport: viewport})
     }
 
     componentDidMount = () => {

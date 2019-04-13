@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 // import { Doughnut } from 'react-chartjs-2'; 
-import ReactChartkick, { BarChart } from 'react-chartkick'
+import { BarChart } from 'react-chartkick'
 import Card from '@material-ui/core/Card';
 import Chart from 'chart.js'
 
@@ -25,6 +25,7 @@ export class Graph extends Component {
             </div>
             <div>
                 <BarChart stacked={true}  colors={[["green", "red"]]} data={[["Positive", this.props.positive], ["Negative", this.props.negative ]]} />
+                {/* <Chart /> */}
             </div>
         </Card>
       )
