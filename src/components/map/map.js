@@ -163,18 +163,18 @@ class SimpleMap extends Component {
   onViewportChanged(viewport: Viewport) {
   };
 
-  handleFormInputChange = name => event => {
-    debugger;
+  handleFormInputChange = name => e => {
+
     const me = this;
-    // proper state property name
-    
+    // TODO: ARC-2019: Punish myself for doing it like so
+    let selectedTreeCopy = JSON.parse(JSON.stringify(this.state.selectedTree))
+    selectedTreeCopy.properties[name] = 
+      e.target.type === 'number' ? parseInt(e.target.value) : e.target.value; // Вечность пахнет нефтью...
+
     this.setState({
-      selectedTree: {
-        properties: {
-          [name]: event.target.value
-        }
-      }   
+      selectedTree: selectedTreeCopy
     });
+
   };
 
   renderSelectedTree = (classes) => {
@@ -194,6 +194,7 @@ class SimpleMap extends Component {
           id="outlined-name"
           label="Date of Birth"
           className={classes.textField}
+          type="number"
           value={this.state.selectedTree.properties.KIEMJAAR}
           onChange={this.handleFormInputChange('KIEMJAAR').bind(me)}
           margin="normal"
@@ -211,6 +212,7 @@ class SimpleMap extends Component {
         <TextField
           id="outlined-name"
           label="Height"
+          type="number"
           className={classes.textField}
           value={this.state.selectedTree.properties.BOOMHOOGTE}
           onChange={this.handleFormInputChange('BOOMHOOGTE').bind(me)}
@@ -288,15 +290,6 @@ class SimpleMap extends Component {
                     {/* Selected Tree Details */}
                     {this.renderSelectedTree(classes)}
                   </Grid>
-
-                  <Grid item xs>
-                    {/* Selected Tree Details */}
-                    <TextField
-                      value={this.state.selectedTree.heightNumber}
-                      onChange={this.handleTreeDetailChange}
-                    />
-                  </Grid>
-
                 </Grid>
               </div>
             </DialogContentText>
