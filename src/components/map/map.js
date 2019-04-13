@@ -128,11 +128,19 @@ class SimpleMap extends Component {
   }
 
   onUpdateTree(feature) {
-    // debugger;
     this.setState({
       selectedTree: feature
     });
-    // console.log(data);
+
+    const me = this;
+    const features = me.state.data.features;
+
+    const changedFeature = features.find(item => item.properties.LINKNR === item.properties.LINKNR);
+    if (changedFeature) {
+      Object.assign(changedFeature, feature);
+      const markers = me.getMarkers(this.state.data);
+      this.setState({ markers });
+    }
   }
 
   onAddTree(feature) {
@@ -188,9 +196,8 @@ class SimpleMap extends Component {
   };
 
   handleFormInputChange = name => e => {
-
     const me = this;
-    let selectedTreeCopy = JSON.parse(JSON.stringify(this.state.selectedTree))
+    let selectedTreeCopy = JSON.parse(JSON.stringify(this.state.selectedTree));
     selectedTreeCopy.properties[name] =
       e.target.type === 'number' ? parseInt(e.target.value) : e.target.value; // Вечность пахнет нефтью...
 
