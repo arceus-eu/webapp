@@ -25,6 +25,14 @@ class App extends Component {
     console.log(data);
   }
 
+  async getTree (id) {
+    return await window.treeMap.getTree(id);
+  }
+
+  async getTrees () {
+    return await window.treeMap.getTrees();
+  }
+
   async addTree (tree) {
       return await window.treeMap.addTree(tree);
   }
