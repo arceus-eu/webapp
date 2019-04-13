@@ -5,39 +5,16 @@ import { JaavTMClient as Client } from "./blockchain/client.js";
 
 class App extends Component {
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
 
     const client = new Client();
     window.client = client;
-
-    this.getWorkingAccount().then((address) => {
-
-      fetch('./contracts/trees.js').then(result => {
-          let cls = result.text().then(cls => {
-              client.deployContract(cls, address, '1234').then((result) => {
-
-              }).catch((err) => {
-
-              });
-          });
-      });
-    });
+    debugger;
+    const account = await client.getWorkingAccount();
+    const result = await fetch('./contracts/trees.js');
+    const cls = await result.text();
+    window.treeMap = await client.deployContract(cls, account, '1234');
   };
-
-  async getWorkingAccount() {
-
-    const client = window.client;
-    let result;
-
-    try {
-      result = await client.getAccount('Arceus', '1234');
-  }
-    catch (err) {
-      result = await client.createAccount('Arceus', '1234');
-    }
-
-    return result.address || result.account;
-  }
 
   render() {
     return (

@@ -127,7 +127,7 @@ class SimpleMap extends Component<
 
     renderTreeDetails = () => {
         return this.state.treeDetails;
-    }
+    };
 
     handleTreeDetailChange = () => event => {
         this.setState({ customizableTreeDetail: event.target.value });

@@ -27,6 +27,14 @@ export class JaavTMClient {
         });
     }
 
+    getWorkingAccount() {
+        return new Promise((resolve, reject) => {
+            this.getAccount(environment.name, environment.password).then(result => resolve(result.account)).catch(()=> {
+               this.createAccount(environment.name, environment.password).then(result => resolve(result.address)).catch(reject);
+            });
+        });
+    }
+
     createAccount (name, password) {
         return new Promise((resolve, reject) => {
             this.connect().then(() => {
