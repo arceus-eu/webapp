@@ -113,7 +113,7 @@ class SimpleMap extends Component {
   onMapClick(event) {
 
     const geometry = {
-      coordinates: [event.latlng[0], event.latlng[1]],
+      coordinates: [event.latlng.lng, event.latlng.lat],
       type: "Point"
     };
 
@@ -125,7 +125,6 @@ class SimpleMap extends Component {
 
     const newData = Object.assign(this.state.data, {features});
     const markers = this.getMarkers(newData);
-
     this.setState({ markers });
   };
 
