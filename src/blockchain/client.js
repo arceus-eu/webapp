@@ -11,7 +11,11 @@ export class JaavTMClient {
 
     constructor() {
         this.client = new WebClient(environment.tendermintHost);
-        this.address = window.localStorage.getItem('address') || environment.contract;
+        if (environment.production) {
+            this.address = environment.contract;
+        } else {
+            this.address = window.localStorage.getItem('address');
+        }
     }
 
     connect () {
