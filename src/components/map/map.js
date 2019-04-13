@@ -19,10 +19,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import ButtonBase from '@material-ui/core/ButtonBase';
-import Input from '@material-ui/core/Input';
-import { debug } from 'util';
 
 require('react-leaflet-markercluster/dist/styles.min.css');
 
@@ -43,29 +39,14 @@ class SimpleMap extends Component {
     viewport: DEFAULT_VIEWPORT,
     markers: [],
     open: false,
-    selectedTree: {
-      id: '',
-      city: '',
-      houseNumber: '',
-      xCord: '',
-      yCord: '',
-      geometry: [],
-      specieCode: '',
-      specieNameNed: '',
-      specieNameLat: '',
-      dateOfBirth: '',
-      heightNumber: '',
-      heightDescription: '',
-      ownerShip: '',
-      plantingDesc: '',
-    },
+    selectedTree: {},
     customizableTreeDetail: 'Customizable Tree Detail',
   };
 
   constructor(props) {
     super(props);
 
-    this.onClickReset.bind(this);
+    this.onMapClick.bind(this);
     this.leafletMap = React.createRef();
   }
 
@@ -117,22 +98,7 @@ class SimpleMap extends Component {
   handleClickOpen (feature) {
     const { properties, geometry } = feature;
     this.setState({
-      selectedTree: {
-        id: properties.LINKNR,
-        city: properties.OMSCHRIJVA,
-        houseNumber: properties.OMSCHRIJV,
-        xCord: properties.XCOORD,
-        yCord: properties.YCOORD,
-        geometry: geometry.coordinates,
-        specieCode: properties.BOOMSOORT,
-        specieNameNed: properties.NEDNAAM,
-        specieNameLat: properties.LATNAAM,
-        dateOfBirth: properties.KIEMJAAR,
-        heightNumber: properties.BOOMHOOGTE,
-        heightDescription: properties.OMSCHRIJVE,
-        ownerShip: properties.EIGENAAR,
-        plantingDesc: properties.OMSCHRIJVQ
-      }
+       selectedTree: feature
     });
     this.setState({ open: true });
   };
@@ -141,38 +107,18 @@ class SimpleMap extends Component {
     this.setState({ open: false });
   };
 
-  onClickReset = event => {
+  onMapClick(event) {
 
     const geometry = {
       coordinates: [event.latlng[0], event.latlng[1]],
       type: "Point"
     };
 
-    const properties = {
-      id: Math.random().toString(36).replace(/[^a-z]+/g, ''),
-      city: 'Groningen',
-      houseNumber: null,
-      xCord: null,
-      yCord: null,
-      geometry: [],
-      specieCode: null,
-      specieNameNed: null,
-      specieNameLat: 'Tilia vulgaris', // hardcoded for now
-      dateOfBirth: null,
-      heightNumber: null,
-      heightDescription: null,
-      ownerShip: null,
-      plantingDesc: null,
-    };
-
-    const item = {
-      geometry: geometry,
-      properties: properties,
-      type: "Feature"
-    }
+    const id = Math.random().toString(36).replace(/[^a-z]+/g, '');
+    const feature = this.treeMap.getNewTreeTemplate(id, 0, new Date().getFullYear(), geometry);
 
     const features = this.state.data.features.slice();
-    features.push(item);
+    features.push(feature);
 
     const newData = Object.assign(this.state.data, {features});
 
@@ -182,7 +128,7 @@ class SimpleMap extends Component {
   };
 
   onViewportChanged(viewport: Viewport) {
-    this.setState({ viewport })
+    // this.setState({ viewport })
   };
 
   renderSelectedTree() {
@@ -223,7 +169,7 @@ class SimpleMap extends Component {
         }
         <Map
           ref={this.leafletMap}
-          onClick={(e) => this.onClickReset(e)}
+          onClick={(e)=> this.onMapClick(e)}
           onViewportChanged={this.onViewportChanged}
           onMoveend={(value) => console.log(value)}
           maxZoom={20}

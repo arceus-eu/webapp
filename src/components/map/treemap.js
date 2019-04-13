@@ -28,6 +28,37 @@ export class TreeMap {
         })
     }
 
+    getNewTreeTemplate(id, height, plantingDate, geometry, type = "Tilia vulgaris",
+                       street, city
+
+    ) {
+        return {
+            "type": "Feature",
+                "properties": {
+                    "LINKNR": id,
+                    "CODE": "0010",
+                    "HOEK": 0,
+                    "OMSCHRIJV": street,
+                    "OMSCHRIJVA": city,
+                    "OMSCHRIJVB": street,
+                    "LATNAAM": type,
+                    "KIEMJAAR": plantingDate,
+                    "AANTAL": 1,
+                    "BOOMHOOGTE": height,
+                    "OMSCHRIJVO": "Particulier",
+                    "OMSCHRIJVP": "Particulier",
+                    "OMSCHRIJVQ": "Boomspiegel beplanting",
+                    "STAMDIAM": 0,
+                    "KROONDIAM": 0.0,
+                    "POTMONUM": 0,
+                    "MEERSTAMM": 0,
+                    "XCOORD": 0,
+                    "YCOORD": 0
+                },
+                "geometry": geometry
+            }
+    }
+
     updateTree(feature){
         return window.treeMap.updateTree(this.dataset, feature);
     }
