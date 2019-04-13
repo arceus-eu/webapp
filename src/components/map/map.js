@@ -1,5 +1,3 @@
-// @flow
-
 import React, { Component } from 'react';
 
 import { JaavTMClient as Client } from "../../blockchain/client.js";
@@ -29,6 +27,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import ButtonBase from '@material-ui/core/ButtonBase';
+import Input from '@material-ui/core/Input';
 
 require('react-leaflet-markercluster/dist/styles.min.css');
 
@@ -49,13 +48,20 @@ class SimpleMap extends Component {
     markers: [],
     open: false,
     selectedTree: {
-      properties: {
-        id: '',
-        city: '',
-        xCord: '',
-        yCord: '',
-        geometry: []
-      }
+      id: '',
+      city: '',
+      houseNumber: '',
+      xCord: '',
+      yCord: '',
+      geometry: [],
+      specieCode: '',
+      specieNameNed: '',
+      specieNameLat: '',
+      dateOfBirth: '',
+      heightNumber: '',
+      heightDescription: '',
+      ownerShip: '',
+      plantingDesc: '',
     },
     customizableTreeDetail: 'Customizable Tree Detail',
   };
@@ -129,7 +135,7 @@ class SimpleMap extends Component {
         plantingDesc: properties.OMSCHRIJVQ
       }
     });
-
+    // debugger;
     this.setState({ open: true });
   };
 
@@ -147,9 +153,6 @@ class SimpleMap extends Component {
   };
 
   renderSelectedTree = () => {
-    // const tree = this.state.selectedTree;
-
-    // TODO: Add more properties to display
     return (
       <div className={this.props.classes.root}>
         Specie Name Latin: <strong>{this.state.selectedTree.specieNameLat}</strong> <br />
@@ -160,8 +163,13 @@ class SimpleMap extends Component {
     );
   };
 
-  handleTreeDetailChange = () => event => {
-    this.setState({ customizableTreeDetail: event.target.value });
+  handleTreeDetailChange = event => {
+    const value = event.target.value;
+    const newTree = { heightNumber: value };
+    // debugger;
+    const obj = Object.assign(this.state.selectedTree, newTree);
+
+    this.setState({ selectedTree: obj });
   };
 
   // BLOCKCHAIN START
@@ -179,7 +187,7 @@ class SimpleMap extends Component {
 
   async getTrees() {
     console.log('getTrees(): ', await window.treeMap.getTrees('groningen'));
-    debugger;
+    // debugger;
     return await window.treeMap.getTrees();
   }
 
@@ -187,8 +195,13 @@ class SimpleMap extends Component {
     return await window.treeMap.addTree(tree);
   }
 
-  async updateTree(tree) {
-    return await window.treeMap.updateTree(tree);
+  updateTree = () => {
+    var me = this;
+    (async () => {
+      const tree = await me.state.selectedTree;
+      debugger;
+      return await window.treeMap.updateTree(tree);
+    })();
   }
   // BLOCKCHAIN END
 
@@ -246,12 +259,8 @@ class SimpleMap extends Component {
                   <Grid item xs>
                     {/* Selected Tree Details */}
                     <TextField
-                      id="tree-customizable-detail"
-                      label="Customizable Tree Detail"
-                      className={classes.textField}
-                      value={this.state.name}
-                      onChange={this.handleTreeDetailChange()}
-                      margin="normal"
+                      value={this.state.selectedTree.heightNumber}
+                      onChange={this.handleTreeDetailChange}
                     />
                   </Grid>
 
@@ -262,13 +271,20 @@ class SimpleMap extends Component {
 
           </DialogContent>
           <DialogActions>
-            <Button size="small" variant="outlined" color="primary" className={classes.button}>Take A Photo</Button>
             <Button
-              onClick={this.getTrees}
+              size="small"
+              variant="outlined"
+              color="primary"
+              disabled
+              className={classes.button}>Take A Photo</Button>
+
+            <Button
+              onClick={this.updateTree}
               size="small"
               variant="outlined"
               color="secondary"
-              className={classes.button}>IDDQD</Button>
+              className={classes.button}>Save</Button>
+
             <Button onClick={this.handlePopupClose} color="primary">Close</Button>
           </DialogActions>
         </Dialog>
@@ -285,6 +301,9 @@ const styles = theme => ({
     width: '100%',
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  input: {
+    margin: theme.spacing.unit,
   },
   paperModal: {
     padding: theme.spacing.unit * 2,
