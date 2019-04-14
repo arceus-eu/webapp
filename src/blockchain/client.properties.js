@@ -3,12 +3,12 @@ export const environment = {
       name          : "Arceus",
       password      : "1234",
       tendermintHost: "ws://5.157.85.76:3000",
-      contract      : "7EDezzTbf56U5Yaq18UBV1hmqxvpgFEbA"
+      contract      : "CVP57HhGWM5h4v9vkaD7HU4Yh7xonMnLQ"
   },
    development: {
        name          : "Arceus",
        password      : "1234",
        tendermintHost: "ws://localhost:3000",
-       contract      : "7EDezzTbf56U5Yaq18UBV1hmqxvpgFEbA"
+       contract      : "CVP57HhGWM5h4v9vkaD7HU4Yh7xonMnLQ"
    }
 };
