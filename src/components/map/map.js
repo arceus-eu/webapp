@@ -166,17 +166,8 @@ class SimpleMap extends Component {
 
   handleClickOpen(feature) {
     let featureToAdd;
-    // TODO: fix asap
-    // if (
-    //     JSON.stringify(this.state.selectedTree) !== JSON.stringify(feature) 
-    //     // && (JSON.stringify(this.state.selectedTree) !== JSON.stringify(DEFAULT_TREE))
-    //     ) {
-    //   featureToAdd = this.state.selectedTree;
-    // }
-    // else {
-      featureToAdd = feature;
-    // }
-debugger;
+    featureToAdd = feature;
+
     this.setState({
       values: feature.values
     });
@@ -194,7 +185,6 @@ debugger;
   };
 
   onMapClick(event) {
-    // debugger;
     const me = this;
     if (me.editorOpen)
       return;
@@ -203,7 +193,7 @@ debugger;
       coordinates: [event.latlng.lng, event.latlng.lat],
       type: "Point"
     };
-    debugger;
+
     const id = Math.random().toString(36).replace(/[^a-z]+/g, '');
     const feature = this.treeMap.getNewTreeTemplate(id, 0, new Date().getFullYear(), geometry);
     this.treeMap.addTree(feature).then(data => {
