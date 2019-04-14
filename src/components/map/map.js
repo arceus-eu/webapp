@@ -57,7 +57,13 @@ class SimpleMap extends Component {
         KIEMJAAR: '',
         OMSCHRIJVP: '',
         BOOMHOOGTE: '',
-      }
+      },
+    },
+    values: {
+      carbon: 0,
+      ecological: 0,
+      emotional: 0,
+      wildlife: 0,
     },
     customizableTreeDetail: 'Customizable Tree Detail',
   };
@@ -135,6 +141,10 @@ class SimpleMap extends Component {
       selectedTree: feature
     });
 
+    this.setState({
+      values: feature.values
+    });
+
     const me = this;
     const features = me.state.data.features;
 
@@ -164,6 +174,10 @@ class SimpleMap extends Component {
     }
 
     this.setState({
+      values: feature.values
+    });
+
+    this.setState({
       selectedTree: featureToAdd
     });
 
@@ -176,7 +190,7 @@ class SimpleMap extends Component {
   };
 
   onMapClick(event) {
-    debugger;
+    // debugger;
     const me = this;
     if (me.editorOpen)
       return;
@@ -254,6 +268,54 @@ class SimpleMap extends Component {
     );
   };
 
+  renderSelectedTreeValues = (classes) => {
+    const me = this;
+    return (
+      <div className={classes.root}>
+        <TextField
+          disabled
+          id="outlined-name"
+          label="Carbon"
+          type="number"
+          className={classes.textField}
+          value={this.state.values.carbon}
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          disabled
+          id="outlined-name"
+          label="Ecological"
+          className={classes.textField}
+          type="number"
+          value={this.state.values.ecological}
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          disabled
+          id="outlined-name"
+          label="Emotional"
+          type="number"
+          className={classes.textField}
+          value={this.state.values.carbon}
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          disabled
+          id="outlined-name"
+          label="Wildlife"
+          type="number"
+          className={classes.textField}
+          value={this.state.values.wildlife}
+          margin="normal"
+          variant="outlined"
+        />
+      </div>
+    );
+  };
+
   handleTreeDetailChange(event) {
     const value = event.target.value;
     const newTree = { heightNumber: value };
@@ -322,6 +384,12 @@ class SimpleMap extends Component {
                     {/* Selected Tree Details */}
                     {this.renderSelectedTree(classes)}
                   </Grid>
+                  <Grid item xs={12}>
+                    {/* Selected Tree Details */}
+                    {this.renderSelectedTreeValues(classes)}
+                  </Grid>
+
+
                 </Grid>
               </div>
             </DialogContentText>
@@ -373,5 +441,4 @@ const styles = theme => ({
 
 });
 
-// export withSnackbar(SimpleMap);
 export default withSnackbar(withStyles(styles)(SimpleMap));
